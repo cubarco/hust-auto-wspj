@@ -6,7 +6,7 @@ Automatic HUST WSPJ Python Version
 
 
 Usage:
-    ./pingjiao.py <stu_ID> <password> <level>
+    ./pingjiao.py <stu_ID> <level>
     level = 0 ~ 4
         0 for pretty good, 4 for bad
 
@@ -23,16 +23,11 @@ Procedure:
 
 Prerequisite:
     * Python 2.x
-    * Requests (python-requests)
     * Selenium Webdriver (python-selenium)
-    * Tesseract
-    * ImageMagicK
-
 
 """
 
 from selenium import webdriver
-import requests
 import time
 import os
 import signal
@@ -69,21 +64,11 @@ def login(username, password):
         wb.get("http://curriculum.hust.edu.cn/")
         wb.find_element_by_id("loginId").send_keys(username)
         wb.find_element_by_id("upassword").send_keys(password)
-        cok = wb.get_cookies()
-        rc = {}
-        for i in cok:
-            rc[i[u'name']] = i[u'value']
-        prefix = os.tempnam()
-        img = requests.get("http://curriculum.hust.edu.cn/imageensureAction.do", cookies=rc, stream=True).raw.read()
-        with open(prefix + '.jpg', 'wb') as f:
-            f.write(img)
-        os.system("convert " + prefix + ".jpg " + prefix + ".pbm")
-        os.system("tesseract " + prefix + ".pbm " + prefix + ".ans")
-        with open(prefix + ".ans.txt", 'rb') as f:
-            code = f.readline().strip()
-        os.system("rm -rf " + prefix + "*")
-        wb.find_element_by_id("randnumber").send_keys(code)
+        # Verify code is useless.
+        wb.find_element_by_id("randnumber").send_keys('xxxx')
         wb.find_element_by_id("login_").click()
+        wb.switch_to.alert.accept()
+        wb.find_elements_by_tag_name("form")[1].submit()
         while True:
             if 'student_index.jsp' in wb.current_url:
                 break
@@ -200,6 +185,8 @@ def run_process(username, password, judge):
 
 if __name__ == "__main__":
     import sys
+    from getpass import getpass
     username = sys.argv[1]
-    password = sys.argv[2]
-    run_process(username, password, sys.argv[3])
+    level = sys.argv[2]
+    password = getpass("Password: ")
+    run_process(username, password, level)
