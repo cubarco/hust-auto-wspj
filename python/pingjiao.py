@@ -11,7 +11,7 @@ Usage:
         0 for pretty good, 4 for bad
 
 Procedure:
-    1. Login with automatic CAPTCHA decoder
+    1. Login
     2. Get the un-voted (un-judged) courses' list
         (including the 2nd/3rd page)
     3. Vote every course on your selected <level>
