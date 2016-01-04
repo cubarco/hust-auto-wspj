@@ -65,10 +65,18 @@ def login(username, password):
         wb.find_element_by_id("loginId").send_keys(username)
         wb.find_element_by_id("upassword").send_keys(password)
         # Verify code is useless.
-        wb.find_element_by_id("randnumber").send_keys('xxxx')
-        wb.find_element_by_id("login_").click()
-        wb.switch_to.alert.accept()
-        wb.find_elements_by_tag_name("form")[1].submit()
+        key = wb.find_element_by_name('module').get_attribute('value')
+        wb.execute_script(
+            'setMaxDigits(130);'
+            'var passkey = new RSAKeyPair("10001","","%s");' % key +
+            'document.getElementById("_upassword").value='
+            'encryptedString(passkey,'
+            'document.getElementById("upassword").value);'
+            'document.getElementById("_loginId").value='
+            'encryptedString(passkey,'
+            'document.getElementById("loginId").value);'
+        )
+        wb.find_elements_by_tag_name('form')[1].submit()
         while True:
             if 'student_index.jsp' in wb.current_url:
                 break
